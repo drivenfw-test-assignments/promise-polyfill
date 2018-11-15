@@ -33,6 +33,8 @@ describe('MyPromise', () => {
     it('returns a rejected promise if \'reject\' is called synchronously', () => {
       const p = new MyPromise((resolve, reject) => reject('Error'))
 
+      p.catch()
+
       expect(p.toString()).toBe('MyPromise {<rejected>: Error}')
     })
 
@@ -41,6 +43,8 @@ describe('MyPromise', () => {
         setTimeout(() => reject('Error'), 100)
       })
 
+      p.catch()
+
       expect(p.toString()).toBe('MyPromise {<pending>}')
     })
 
@@ -48,6 +52,8 @@ describe('MyPromise', () => {
       const p = new MyPromise((resolve, reject) => {
         setTimeout(() => reject('Error'), 100)
       })
+
+      p.catch()
 
       const checkPromise = () => {
         expect(p.toString()).toBe('MyPromise {<rejected>: Error}')
@@ -58,7 +64,134 @@ describe('MyPromise', () => {
     })
   })
 
-  describe('then', () => {
+
+  describe('catch', () => {
+    it('returns a new promise', () => {
+      const p = new MyPromise(() => {})
+
+      expect(p.catch()).toBeInstanceOf(MyPromise)
+    })
+
+    describe('with original promise resolved synchronously', () => {
+      it('returns a pending promise', () => {
+        const p = new MyPromise(resolve => resolve(1)).catch()
+
+        expect(p.toString()).toBe('MyPromise {<pending>}')
+      })
+
+      it('resolves returned promise asynchronously', done => {
+        const p = new MyPromise(resolve => resolve(3)).catch()
+
+        const checkPromise = () => {
+          expect(p.toString()).toBe('MyPromise {<resolved>: 3}')
+          done()
+        }
+
+        setTimeout(checkPromise, 0)
+      })
+    })
+
+    describe('with original promise resolved asynchronously', () => {
+      it('returns a pending promise', () => {
+        const p = new MyPromise(resolve => {
+          setTimeout(() => resolve(1), 100)
+        }).catch()
+
+        expect(p.toString()).toBe('MyPromise {<pending>}')
+      })
+
+      it('resolves returned promise asynchronously', done => {
+        const p = new MyPromise(resolve => {
+          setTimeout(() => resolve(3), 100)
+        }).catch()
+
+        const checkPromise = () => {
+          expect(p.toString()).toBe('MyPromise {<resolved>: 3}')
+          done()
+        }
+
+        setTimeout(checkPromise, 200)
+      })
+    })
+
+    describe('with original promise rejected synchronously', () => {
+      it('returns a pending promise', () => {
+        const p = new MyPromise((resolve, reject) => reject('Error')).catch()
+
+        expect(p.toString()).toBe('MyPromise {<pending>}')
+      })
+
+      describe('with onReject callback', () => {
+        it('resolves returned promise asynchronously', done => {
+          const p = new MyPromise((resolve, reject) => reject('Error'))
+            .catch(() => {})
+
+          const checkPromise = () => {
+            expect(p.toString()).toBe('MyPromise {<resolved>: undefined}')
+            done()
+          }
+
+          setTimeout(checkPromise, 10)
+        })
+      })
+
+      describe('without onReject callback', () => {
+        it('rejects returned promise asynchronously', done => {
+          const p = new MyPromise((resolve, reject) => reject('Error'))
+            .catch()
+         
+          const checkPromise = () => {
+            expect(p.toString()).toBe('MyPromise {<rejected>: Error}')
+            done()
+          }
+
+          setTimeout(checkPromise, 10)
+        })
+      })
+    })
+
+    describe('with original promise rejected asynchronously', () => {
+      it('returns a pending promise', () => {
+        const p = new MyPromise((resolve, reject) => {
+          setTimeout(() => reject('Error'), 100)
+        }).catch()
+
+        expect(p.toString()).toBe('MyPromise {<pending>}')
+      })
+
+      describe('with onReject callback', () => {
+        it('resolves returned promise asynchronously', done => {
+          const p = new MyPromise((resolve, reject) => { 
+            setTimeout(() => reject('Error'), 100)
+          }).catch(() => {})
+
+          const checkPromise = () => {
+            expect(p.toString()).toBe('MyPromise {<resolved>: undefined}')
+            done()
+          }
+
+          setTimeout(checkPromise, 200)
+        })
+      })
+
+      describe('without onReject callback', () => {
+        it('rejects returned promise asynchronously', done => {
+          const p = new MyPromise((resolve, reject) => reject('Error'))
+            .catch()
+         
+          const checkPromise = () => {
+            expect(p.toString()).toBe('MyPromise {<rejected>: Error}')
+            done()
+          }
+
+          setTimeout(checkPromise, 10)
+        })
+      })
+    })
+  })
+
+
+  /* describe('then', () => {
     it('returns a new promise', () => {
       const p = new MyPromise(() => {})
 
@@ -117,7 +250,7 @@ describe('MyPromise', () => {
           done()
         }
        
-        setTimeout(checkPromise, 0)
+        setTimeout(checkPromise, 10)
       })
     })
 
@@ -180,7 +313,7 @@ describe('MyPromise', () => {
           done()
         }
        
-        setTimeout(checkPromise, 100)
+        setTimeout(checkPromise, 120)
       })
     })
 
@@ -191,6 +324,6 @@ describe('MyPromise', () => {
         expect(p.toString()).toBe('MyPromise {<pending>}')
       })
     })
-  })
+  }) */
 })
 
