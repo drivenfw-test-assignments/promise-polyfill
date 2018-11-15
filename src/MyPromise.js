@@ -66,30 +66,30 @@ export default class MyPromise {
     }, 0)
   }
 
+  _handleRejection(onRejected, promise, doNotThrow) {
+    // If 'this' promise is 'rejected' (or goes from 'pending' to 'rejected')
+    // we should either resolve the 'new promise' with the value 
+    // returned from the onRejected callback
+    // or reject it with this._error if no onRejected callback
+    // has been passed in
+    
+    if (onRejected) {
+      this._derivedPromisesToResolveFrom_Reject.push({ 
+        onFulfilled: onRejected,
+        p: promise
+      })
+    } else {
+      this._derivedPromisesToReject.push({ 
+        onRejected: v => v, 
+        p: promise, 
+        doNotThrow
+      })
+    }
+  }
+
   catch(onRejected) {
     // Create a new promise (in pending state)
     const p = new MyPromise(() => {})
-
-    const handleRejection = () => {
-      // If 'this' promise is 'rejected' (or goes from 'pending' to 'rejected')
-      // we should either resolve the 'new promise' with the value 
-      // returned from the onRejected callback
-      // or reject it with this._error if no onRejected callback
-      // has been passed in
-      
-      if (onRejected) {
-        this._derivedPromisesToResolveFrom_Reject.push({ 
-          onFulfilled: onRejected,
-          p
-        })
-      } else {
-        this._derivedPromisesToReject.push({ 
-          onRejected: v => v, 
-          p, 
-          doNotThrow: true 
-        })
-      }
-    }
 
     switch (this._state) {
       case states.resolved:
@@ -103,11 +103,11 @@ export default class MyPromise {
         this._derivedPromisesToResolveFrom_Resolve.push({ onFulfilled: v => v, p })
 
         // If 'this' promise goes from 'pending' to 'resolved'
-        handleRejection()
+        this._handleRejection(onRejected, p, true)
         break
 
       case states.rejected:
-        handleRejection()
+        this._handleRejection(onRejected, p, true)
         break
     }
 
@@ -122,27 +122,6 @@ export default class MyPromise {
     // Create a new promise (in pending state)
     const p = new MyPromise(() => {})
 
-    const handleRejection = () => {
-      // If 'this' promise is 'rejected' (or goes from 'pending' to 'rejected')
-      // we should either resolve the 'new promise' with the value 
-      // returned from the onRejected callback
-      // or reject it with this._error if no onRejected callback
-      // has been passed in
-      
-      if (onRejected) {
-        this._derivedPromisesToResolveFrom_Reject.push({ 
-          onFulfilled: onRejected,
-          p
-        })
-      } else {
-        this._derivedPromisesToReject.push({ 
-          onRejected: v => v, 
-          p, 
-          doNotThrow: false
-        })
-      }
-    }
-
     switch (this._state) {
       case states.resolved:
         // Asynchronously resolve new promise
@@ -156,11 +135,11 @@ export default class MyPromise {
         this._derivedPromisesToResolveFrom_Resolve.push({ onFulfilled, p })
 
         // If 'this' promise goes from 'pending' to 'rejected'
-        handleRejection()
+        this._handleRejection(onRejected, p, false)
         break
 
       case states.rejected:
-        handleRejection()
+        this._handleRejection(onRejected, p, false)
         break
     }
 
