@@ -1,5 +1,6 @@
 Promise polyfill with `then` and `catch` methods implemented
 
-Run `yarn test` to launch tests
+1. Run `yarn insall` to install dependencies 
+2. Run `yarn test` to launch tests
 
 
