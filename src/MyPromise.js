@@ -102,20 +102,19 @@ export default class MyPromise {
         // we should resolve the 'new promise' with this._value
         this._derivedPromisesToResolveFrom_Resolve.push({ onFulfilled: v => v, p })
 
+        // If 'this' promise goes from 'pending' to 'resolved'
         handleRejection()
-
         break
 
       case states.rejected:
         handleRejection()
-
         break
     }
 
     return p
   }
 
-  /* then(onFulfilled, onRejected) {
+  then(onFulfilled, onRejected) {
     // Resolve with this._value if no 
     // onFulfilled callback has been passed
     if (!onFulfilled) onFulfilled = v => v
@@ -123,33 +122,50 @@ export default class MyPromise {
     // Create a new promise (in pending state)
     const p = new MyPromise(() => {})
 
+    const handleRejection = () => {
+      // If 'this' promise is 'rejected' (or goes from 'pending' to 'rejected')
+      // we should either resolve the 'new promise' with the value 
+      // returned from the onRejected callback
+      // or reject it with this._error if no onRejected callback
+      // has been passed in
+      
+      if (onRejected) {
+        this._derivedPromisesToResolveFrom_Reject.push({ 
+          onFulfilled: onRejected,
+          p
+        })
+      } else {
+        this._derivedPromisesToReject.push({ 
+          onRejected: v => v, 
+          p, 
+          doNotThrow: false
+        })
+      }
+    }
+
     switch (this._state) {
       case states.resolved:
         // Asynchronously resolve new promise
-        // with a value returned from onFulfilled
+        // with the value returned from onFulfilled
         setTimeout(() => p._resolve(onFulfilled(this._value)), 0)
         break
 
       case states.pending:
-        // Resolve new promise later 
-        // after 'this' promise has been resolved
-        this._derivedPromises.push({ onFulfilled, p })
+        // If 'this' promise goes from 'pending' to 'resolved'
+        // we should resolve the 'new promise' with this._value
+        this._derivedPromisesToResolveFrom_Resolve.push({ onFulfilled, p })
+
+        // If 'this' promise goes from 'pending' to 'rejected'
+        handleRejection()
         break
 
       case states.rejected:
-        if (onRejected) {
-          // Asynchronously resolve new promise
-          // with a value returned from onReject
-          setTimeout(() => p._resolve(onRejected(this._error)), 0)
-        } else {
-          // Asynchronously reject new promise
-          setTimeout(() => p._reject(this._error), 0)
-        }
+        handleRejection()
         break
     }
 
     return p
-  } */
+  }
 
   toString() {
     return do {
