@@ -16,13 +16,21 @@ export default class MyPromise {
     cb(this._resolve.bind(this), this._reject.bind(this))
   }
 
+  doResolve() {
+    this._resolve.apply(this, arguments)
+  }
+
+  doReject() {
+    this._reject.apply(this, arguments)
+  }
+
   _resolveDerivedPromises(promises) {
     let i = promises.length
 
     while (i-- > 0) {
       const { onFulfilled, p } = promises[i]
 
-      p._resolve(onFulfilled(this._value))
+      p.doResolve(onFulfilled(this._value))
     }
   }
 
@@ -32,7 +40,7 @@ export default class MyPromise {
     while (i-- > 0) {
       const { onRejected, p, doNotThrow } = promises[i]
 
-      p._reject(onRejected(this._error), doNotThrow)
+      p.doReject(onRejected(this._error), doNotThrow)
     }
   }
 
@@ -94,7 +102,7 @@ export default class MyPromise {
     switch (this._state) {
       case states.resolved:
         // Asynchronously resolve new promise with this._value
-        setTimeout(() => p._resolve(this._value), 0)
+        setTimeout(() => p.doResolve(this._value), 0)
         break
 
       case states.pending:
@@ -126,7 +134,7 @@ export default class MyPromise {
       case states.resolved:
         // Asynchronously resolve new promise
         // with the value returned from onFulfilled
-        setTimeout(() => p._resolve(onFulfilled(this._value)), 0)
+        setTimeout(() => p.doResolve(onFulfilled(this._value)), 0)
         break
 
       case states.pending:
