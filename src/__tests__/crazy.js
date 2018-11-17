@@ -1,4 +1,5 @@
-import MyPromise from './MyPromise'
+import MyPromise from '..//MyPromise'
+
 
 const addOne = value => value + 1
 const addTwo = value => value + 2

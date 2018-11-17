@@ -4,10 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "playground": "babel-node src/playground.js",
     "test": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
+    "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.1.6",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",

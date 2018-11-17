@@ -1,4 +1,4 @@
-import MyPromise from './MyPromise'
+import MyPromise from '../MyPromise'
 
 
 describe('MyPromise', () => {
