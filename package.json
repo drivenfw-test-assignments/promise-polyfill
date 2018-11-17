@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "playground": "babel-node src/playground.js",
+    "polyfill-playground": "babel-node src/polyfill-playground.js",
+    "native-playground": "babel-node src/native-playground.js",
     "test": "jest"
   },
   "devDependencies": {
